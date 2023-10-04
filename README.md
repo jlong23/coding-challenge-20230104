@@ -54,11 +54,12 @@ on How to run your dockerized API in REAMDE.md
 
 Given the requirements, I've build the following Request Structure to be sent to the API as JSON Body Payload
 
-'''code
+```code
 POST http://localhost:8080/api/rewards/calculate_period
-'
+```
 
 Given a Array of TransactionSummaryVO
+
 **TransactionSummaryVO**
 FIELD|TYPE|
 -----|:---
@@ -66,7 +67,7 @@ transactionId|STRING
 transactionDate|ISO-8601 As 'yyyy-MM-dd'T'hh:mm:ss.sssZ'
 transactionTotal|DOUBLE 2 Decimal Places expected
 
-'''json
+```json
 [
 {"transactionId": "A", "transactionDate": "2023-10-04T12:00:00.000+0000", "transactionTotal": 120.00 },
 {"transactionId": "B", "transactionDate": "2023-10-04T12:00:00.000+0000", "transactionTotal": 2 },
@@ -77,7 +78,7 @@ transactionTotal|DOUBLE 2 Decimal Places expected
 {"transactionId": "G", "transactionDate": "2023-07-04T00:00:00.000+0000", "transactionTotal": 120.00 },
 {"transactionId": "H", "transactionDate": "2023-07-04T00:00:00.000+0000", "transactionTotal": 2 }
 ]
-'''
+````
 
 With a Response of JSON as follows for that dataset
 
@@ -98,7 +99,7 @@ totalTranslationsAmount|DOUBLE
 totalTransactions|INTEGER
 accumulatedRewards|INTEGER
 
-'''json
+```json
 {
 "periodStart": "2023-07-04T05:00:00.000+00:00",
 "periodEnd": "2023-10-05T04:59:59.999+00:00",
@@ -124,7 +125,7 @@ accumulatedRewards|INTEGER
 }
 ]
 }
-'''
+```
 
 #Code Rationalization
 While not provided in the challenge, I saw a need to ensure we can extend the calculation engine to support windowed 
