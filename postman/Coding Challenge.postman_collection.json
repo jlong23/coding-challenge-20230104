@@ -1,0 +1,40 @@
+{
+	"info": {
+		"_postman_id": "0db6eac7-0ff1-4a31-b862-34124cb9899b",
+		"name": "Coding Challenge",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "832229"
+	},
+	"item": [
+		{
+			"name": "Calculate Rewards Period",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"transactionId\": \"A\",\n        \"transactionDate\": \"2023-10-04T12:00:00.000+0000\",\n        \"transactionTotal\": 120.00\n    },\n    {\n        \"transactionId\": \"B\",\n        \"transactionDate\": \"2023-10-04T12:00:00.000+0000\",\n        \"transactionTotal\": 2\n    },\n    {\n        \"transactionId\": \"C\",\n        \"transactionDate\": \"2023-09-04T12:00:00.000+0000\",\n        \"transactionTotal\": 120.00\n    },\n    {\n        \"transactionId\": \"D\",\n        \"transactionDate\": \"2023-09-04T12:00:00.000+0000\",\n        \"transactionTotal\": 2\n    },\n    {\n        \"transactionId\": \"E\",\n        \"transactionDate\": \"2023-08-04T12:00:00.000+0000\",\n        \"transactionTotal\": 120.00\n    },\n    {\n        \"transactionId\": \"F\",\n        \"transactionDate\": \"2023-08-04T12:00:00.000+0000\",\n        \"transactionTotal\": 2\n    },\n    {\n        \"transactionId\": \"G\",\n        \"transactionDate\": \"2023-07-04T00:00:00.000+0000\",\n        \"transactionTotal\": 120.00\n    },\n    {\n        \"transactionId\": \"H\",\n        \"transactionDate\": \"2023-07-04T00:00:00.000+0000\",\n        \"transactionTotal\": 2\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/rewards/calculate_period",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"rewards",
+						"calculate_period"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
