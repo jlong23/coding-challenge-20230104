@@ -127,7 +127,8 @@ accumulatedRewards|INTEGER
 }
 ```
 
-#Code Rationalization
+# Code Rationalization
+
 While not provided in the challenge, I saw a need to ensure we can extend the calculation engine to support windowed 
 and recalculation of transaction sets for the windowed total of rewards points.  The Calculation is very strict for 
 whole monetary units, for point calculations.  Care was also taken for the window to be Start of the Day 3 months from 
