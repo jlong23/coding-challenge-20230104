@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +38,30 @@ public class RewardsAPI {
 
     @Autowired
     private RewardsCalculator rewardsCalculator;
+
+    @GetMapping(
+            value = "/health-check",
+            produces = MediaType.TEXT_PLAIN_VALUE)
+    @Operation(
+            summary = "Health Check Endpoint",
+            description = "Will respond with 200 OK with the Simple Text Body of \"UP\" of if the API and associated " +
+                    "Services are ready to serve, otherwise \"DOWN\" or No reponse if the services are not ready",
+            tags = { "rewards", "health" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation")
+    })
+    ResponseEntity<String> healthCheck() {
+
+        ResponseEntity.BodyBuilder response = ResponseEntity.ok();
+        String state = "UP";
+
+        if( rewardsCalculator == null ) {
+            state = "DOWN";
+        }
+
+        return response.body( state );
+    }
+
 
     @PostMapping(
             value = "/calculate_period",

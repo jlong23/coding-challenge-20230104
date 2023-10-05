@@ -46,7 +46,7 @@ public class RewardsCalculator {
                         Collectors.toList()));
 
         List<RewardsPeriodVO> periods = grouped.entrySet().stream()
-                .map( e -> calculateRewardsForSet(e.getKey(), e.getValue())).collect(Collectors.toList());
+                .map( e -> calculateRewardsPeriodSegment(e.getKey(), e.getValue())).collect(Collectors.toList());
 
         rewardsVO.setRewardsPointsPeriods(periods);
 
@@ -63,14 +63,14 @@ public class RewardsCalculator {
      * @param transactionSet The subset of the transactions
      * @return Population Rewards Points Period value object
      */
-    protected RewardsPeriodVO calculateRewardsForSet(Date periodStart, List<TransactionSummaryVO> transactionSet ) {
+    protected RewardsPeriodVO calculateRewardsPeriodSegment(Date periodStart, List<TransactionSummaryVO> transactionSet ) {
         RewardsPeriodVO rewardsPeriodVO = new RewardsPeriodVO();
 
         double totalTransactionsValue = transactionSet.stream().mapToDouble(TransactionSummaryVO::getTransactionTotal).sum();
         int totalTransactionsCount = transactionSet.size();
 
         int totalRewardsPeriod = transactionSet.stream().mapToInt( t ->
-                calculateRewardsForTransaction( t.getTransactionTotal() )).sum();
+                calculateRewardsForTransactionAmount( t.getTransactionTotal() )).sum();
 
         rewardsPeriodVO.setPeriodStart(periodStart);
         rewardsPeriodVO.setTotalTransactions( totalTransactionsCount );
@@ -86,7 +86,7 @@ public class RewardsCalculator {
      * @param transactionTotal a transaction amount
      * @return the calculated rewards points for that transaction
      */
-    protected int calculateRewardsForTransaction(double transactionTotal) {
+    protected int calculateRewardsForTransactionAmount(double transactionTotal) {
         return (int) (Math.max( 0, Math.floor( transactionTotal - 50 ) * 1 )
                         + Math.max(0, Math.floor( transactionTotal -100 ) * 1));
     }
