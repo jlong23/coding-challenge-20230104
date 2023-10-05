@@ -23,7 +23,7 @@ public class RewardsCalculator {
     private final Logger logger = LoggerFactory.getLogger(RewardsCalculator.class);
 
     @Value("${rewards.window.months}")
-    private int rewardsWindowMonths;
+    private int rewardsWindowMonths = 3;
 
     @PostConstruct
     public void init() {
