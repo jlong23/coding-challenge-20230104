@@ -18,7 +18,7 @@ import java.util.Date;
 @ToString
 public class RewardsPeriodVO {
 
-    @Schema(description = "First Day of the Month for the Period Evaluated", example = "2023-10-01", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "First Day of the Month for the Period Evaluated", example = "2023-07-04T00:00:00.000+0000", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull
     private Date periodStart;
 

@@ -3,7 +3,11 @@ package com.coding.challenge.domain;
 import com.coding.challenge.domain.model.RewardsPeriodVO;
 import com.coding.challenge.domain.model.RewardsVO;
 import com.coding.challenge.domain.model.TransactionSummaryVO;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
@@ -16,7 +20,15 @@ import java.util.stream.Collectors;
 @Component
 public class RewardsCalculator {
 
-    public static final int REWARDS_PERIOD_WINDOW = 3;
+    private final Logger logger = LoggerFactory.getLogger(RewardsCalculator.class);
+
+    @Value("${rewards.window.months}")
+    private int rewardsWindowMonths;
+
+    @PostConstruct
+    public void init() {
+        logger.info("** Rewards Window Months configuration = " + rewardsWindowMonths ) ;
+    }
 
     /**
      * Calculate The accumulated rewards for a given data set according to the Rules established in the ReadMe section
@@ -46,7 +58,7 @@ public class RewardsCalculator {
                         Collectors.toList()));
 
         List<RewardsPeriodVO> periods = grouped.entrySet().stream()
-                .map( e -> calculateRewardsForSet(e.getKey(), e.getValue())).collect(Collectors.toList());
+                .map( e -> calculateRewardsPeriodSegment(e.getKey(), e.getValue())).collect(Collectors.toList());
 
         rewardsVO.setRewardsPointsPeriods(periods);
 
@@ -63,14 +75,14 @@ public class RewardsCalculator {
      * @param transactionSet The subset of the transactions
      * @return Population Rewards Points Period value object
      */
-    protected RewardsPeriodVO calculateRewardsForSet(Date periodStart, List<TransactionSummaryVO> transactionSet ) {
+    protected RewardsPeriodVO calculateRewardsPeriodSegment(Date periodStart, List<TransactionSummaryVO> transactionSet ) {
         RewardsPeriodVO rewardsPeriodVO = new RewardsPeriodVO();
 
         double totalTransactionsValue = transactionSet.stream().mapToDouble(TransactionSummaryVO::getTransactionTotal).sum();
         int totalTransactionsCount = transactionSet.size();
 
         int totalRewardsPeriod = transactionSet.stream().mapToInt( t ->
-                calculateRewardsForTransaction( t.getTransactionTotal() )).sum();
+                calculateRewardsForTransactionAmount( t.getTransactionTotal() )).sum();
 
         rewardsPeriodVO.setPeriodStart(periodStart);
         rewardsPeriodVO.setTotalTransactions( totalTransactionsCount );
@@ -86,7 +98,7 @@ public class RewardsCalculator {
      * @param transactionTotal a transaction amount
      * @return the calculated rewards points for that transaction
      */
-    protected int calculateRewardsForTransaction(double transactionTotal) {
+    protected int calculateRewardsForTransactionAmount(double transactionTotal) {
         return (int) (Math.max( 0, Math.floor( transactionTotal - 50 ) * 1 )
                         + Math.max(0, Math.floor( transactionTotal -100 ) * 1));
     }
@@ -99,7 +111,7 @@ public class RewardsCalculator {
     private Date getStartingPeriod( Date endingPeriod ) {
 
         return Date.from( endingPeriod.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                .minusMonths( REWARDS_PERIOD_WINDOW )
+                .minusMonths( rewardsWindowMonths )
                 .atStartOfDay().atZone(ZoneId.systemDefault()).toInstant() );
     }
 

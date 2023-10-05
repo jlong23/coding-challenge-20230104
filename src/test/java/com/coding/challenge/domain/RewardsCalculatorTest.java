@@ -21,8 +21,9 @@ class RewardsCalculatorTest {
      * Positive Test for Rewards Transaction Calculation
      */
     @Test
-    public void testCalculateRewardsForTransaction() {
-        assertEquals(90, calc.calculateRewardsForTransaction(120d));
+    public void testCalculateRewardsForTransactionAmount() {
+        assertEquals(90,
+                calc.calculateRewardsForTransactionAmount(120d));
     }
 
     /**
@@ -30,7 +31,7 @@ class RewardsCalculatorTest {
      */
     @Test
     public void testCalculateRewardsForTransactionUnderLowerThreshold() {
-        assertEquals(2, calc.calculateRewardsForTransaction(52d));
+        assertEquals(2, calc.calculateRewardsForTransactionAmount(52d));
     }
 
     /**
@@ -38,7 +39,7 @@ class RewardsCalculatorTest {
      */
     @Test
     public void testCalculateRewardsForTransactionEqualThreshold() {
-        assertEquals(0, calc.calculateRewardsForTransaction(50d));
+        assertEquals(0, calc.calculateRewardsForTransactionAmount(50d));
     }
 
     /**
@@ -47,7 +48,7 @@ class RewardsCalculatorTest {
      */
     @Test
     public void testCalculateRewardsForTransactionNearlyAtThreshold() {
-        assertEquals(0, calc.calculateRewardsForTransaction(50.99d));
+        assertEquals(0, calc.calculateRewardsForTransactionAmount(50.99d));
     }
 
     /**
@@ -55,7 +56,7 @@ class RewardsCalculatorTest {
      */
     @Test
     public void testCalculateRewardsForPeriod( ) {
-        RewardsVO results = calc.calculateRewardsForPeriod( buildSummarySetData(), new Date());
+        RewardsVO results = calc.calculateRewardsForPeriod( buildTestDate_SummarySet(), new Date());
 
         assertEquals( 1, results.getRewardsPointsPeriods().size());
         assertEquals( 90, results.getRewardsPointsTotal());
@@ -65,8 +66,8 @@ class RewardsCalculatorTest {
      * Validation of the Windowed Period Calculation method.
      */
     @Test
-    public void testCalculateRewardsForPeriodWithPositiveNegatives( ) {
-        RewardsVO results = calc.calculateRewardsForPeriod( buildSummarySetData3Months(), new Date());
+    public void testCalculateRewardsForPeriod_3MonthEdgeCase( ) {
+        RewardsVO results = calc.calculateRewardsForPeriod( buildTestData_SummarySet3MonthsEdgeCase(), new Date());
 
         assertEquals( 3, results.getRewardsPointsPeriods().size());
         assertEquals( 90 * 3, results.getRewardsPointsTotal());
@@ -79,8 +80,8 @@ class RewardsCalculatorTest {
      * Validation of the Windowed Period Calculation method with Data outside window.
      */
     @Test
-    public void testCalculateRewardsForPeriodWithPositiveNegativeInputs( ) {
-        RewardsVO results = calc.calculateRewardsForPeriod( buildSummarySetData3PlusMonths(), new Date());
+    public void testCalculateRewardsForPeriod_3MonthEdgeCasePlus( ) {
+        RewardsVO results = calc.calculateRewardsForPeriod( buildTestData_SummarySet3MonthsEdgeCasePlus(), new Date());
 
         assertEquals( 3, results.getRewardsPointsPeriods().size());
         assertEquals( 90 * 3, results.getRewardsPointsTotal());
@@ -94,8 +95,8 @@ class RewardsCalculatorTest {
      * Validation of the Single Period Calculation method.
      */
     @Test
-    public void testCalculateRewardsForSet_1( ) {
-        RewardsPeriodVO results = calc.calculateRewardsForSet( new Date(), buildSummarySetData());
+    public void testCalculateRewardsPeriodSegment( ) {
+        RewardsPeriodVO results = calc.calculateRewardsPeriodSegment( new Date(), buildTestDate_SummarySet());
 
         assertEquals( 90, results.getAccumulatedRewards());
         assertEquals( 1, results.getTotalTransactions());
@@ -106,72 +107,64 @@ class RewardsCalculatorTest {
      * Negative Test: Validate that transactions less than threshold amounts do not accumulate rewards
      */
     @Test
-    public void testCalculateRewardsForSet_2_Negative( ) {
-        RewardsPeriodVO results = calc.calculateRewardsForSet( new Date(), buildSummarySetData2());
+    public void testCalculateRewardsPeriodSegmentEdgeCase( ) {
+        RewardsPeriodVO results = calc.calculateRewardsPeriodSegment( new Date(), buildTestData_SummarySetEdgeCase());
 
         assertEquals( 90, results.getAccumulatedRewards());
         assertEquals( 2, results.getTotalTransactions());
         assertEquals( 122, results.getTotalTranslationsAmount());
     }
 
-    private List<TransactionSummaryVO> buildSummarySetData() {
+    private List<TransactionSummaryVO> buildTestDate_SummarySet() {
         ArrayList<TransactionSummaryVO> list = new ArrayList<>();
         list.add( TransactionSummaryVO.builder().transactionId("A").transactionDate(new Date()).transactionTotal(120).build());
 
         return list;
     }
 
-    private List<TransactionSummaryVO> buildSummarySetData2() {
-        ArrayList<TransactionSummaryVO> list = new ArrayList<>();
-        list.add( TransactionSummaryVO.builder().transactionId("A").transactionDate(new Date()).transactionTotal(120).build());
-        list.add( TransactionSummaryVO.builder().transactionId("B").transactionDate(new Date()).transactionTotal(2).build());
-
-        return list;
-    }
-
-    private List<TransactionSummaryVO> buildSummarySetData3Months() {
-        ArrayList<TransactionSummaryVO> list = new ArrayList<>();
+    private List<TransactionSummaryVO> buildTestData_SummarySetEdgeCase() {
+        List<TransactionSummaryVO> list = new ArrayList<>();
 
         // Latest Date
-        list.add( TransactionSummaryVO.builder().transactionId("A").transactionDate(new Date()).transactionTotal(120).build());
-        list.add( TransactionSummaryVO.builder().transactionId("B").transactionDate(new Date()).transactionTotal(2).build());
+        list.add( buildTransaction("A", new Date(),120));
+        list.add( buildTransaction("B", new Date(),2));
+
+        return list;
+    }
+
+    private List<TransactionSummaryVO> buildTestData_SummarySet3MonthsEdgeCase() {
+        List<TransactionSummaryVO> list = buildTestData_SummarySetEdgeCase();
 
         // One Month Ago from Today
-        Date oneMonthAgo = Date.from( LocalDate.now().minusMonths(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        list.add( TransactionSummaryVO.builder().transactionId("C").transactionDate(oneMonthAgo).transactionTotal(120).build());
-        list.add( TransactionSummaryVO.builder().transactionId("D").transactionDate(oneMonthAgo).transactionTotal(2).build());
+        Date oneMonthAgo = buildHistoricalTestDate( 1 );
+        list.add( buildTransaction("C", oneMonthAgo,120));
+        list.add( buildTransaction("D", oneMonthAgo,2));
 
         // Two Month Ago from Today
-        Date twoMonthAgo = Date.from( LocalDate.now().minusMonths(2).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        list.add( TransactionSummaryVO.builder().transactionId("E").transactionDate(twoMonthAgo).transactionTotal(120).build());
-        list.add( TransactionSummaryVO.builder().transactionId("F").transactionDate(twoMonthAgo).transactionTotal(2).build());
+        Date twoMonthAgo = buildHistoricalTestDate( 2 );
+        list.add( buildTransaction("E", twoMonthAgo,120));
+        list.add( buildTransaction("F", twoMonthAgo,2));
 
         return list;
     }
 
 
-    private List<TransactionSummaryVO> buildSummarySetData3PlusMonths() {
-        ArrayList<TransactionSummaryVO> list = new ArrayList<>();
-
-        // Latest Date
-        list.add( TransactionSummaryVO.builder().transactionId("A").transactionDate(new Date()).transactionTotal(120).build());
-        list.add( TransactionSummaryVO.builder().transactionId("B").transactionDate(new Date()).transactionTotal(2).build());
-
-        // One Month Ago from Today
-        Date oneMonthAgo = Date.from( LocalDate.now().minusMonths(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        list.add( TransactionSummaryVO.builder().transactionId("C").transactionDate(oneMonthAgo).transactionTotal(120).build());
-        list.add( TransactionSummaryVO.builder().transactionId("D").transactionDate(oneMonthAgo).transactionTotal(2).build());
-
-        // Two Month Ago from Today
-        Date twoMonthAgo = Date.from( LocalDate.now().minusMonths(2).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        list.add( TransactionSummaryVO.builder().transactionId("E").transactionDate(twoMonthAgo).transactionTotal(120).build());
-        list.add( TransactionSummaryVO.builder().transactionId("F").transactionDate(twoMonthAgo).transactionTotal(2).build());
+    private List<TransactionSummaryVO> buildTestData_SummarySet3MonthsEdgeCasePlus() {
+        List<TransactionSummaryVO> list = buildTestData_SummarySet3MonthsEdgeCase();
 
         // Three Month Ago from Today
-        Date threeMonthAgo = Date.from( LocalDate.now().minusMonths(3).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        list.add( TransactionSummaryVO.builder().transactionId("G").transactionDate(threeMonthAgo).transactionTotal(120).build());
-        list.add( TransactionSummaryVO.builder().transactionId("H").transactionDate(threeMonthAgo).transactionTotal(2).build());
+        Date threeMonthAgo = buildHistoricalTestDate( 3 );
+        list.add( buildTransaction("G", threeMonthAgo,120));
+        list.add( buildTransaction("H", threeMonthAgo,2));
 
         return list;
+    }
+
+    private TransactionSummaryVO buildTransaction( String id, Date transactionDate, double amount ) {
+        return TransactionSummaryVO.builder().transactionId(id).transactionDate(transactionDate).transactionTotal(amount).build();
+    }
+
+    private Date buildHistoricalTestDate( int monthsToSubtract ) {
+        return Date.from( LocalDate.now().minusMonths(monthsToSubtract).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
     }
 }
