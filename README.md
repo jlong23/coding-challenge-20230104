@@ -52,6 +52,18 @@ on How to run your dockerized API in REAMDE.md
 
 # Challenge Response
 
+## Configuration
+
+This API requires no external data store for operation, allowing it to be deployed as a microservice.  
+The Application supports an application properties setting to control the window of months to accumulate reward points.
+change the months value in the hierarchy to meet the current requirements.
+
+**application.properties**
+```properties
+rewards.window.months = 3
+ ```
+
+
 ## APIs Exposed
 
 ### Service Health Check API
@@ -60,23 +72,39 @@ A simple service health check is expose as GET and will respond with a 'UP' or "
 configuration parameters of the Rewards calcuation being injected into the API Endpoing.
 
 ```code
-GET http://localhost:8080/api/rewards/health-check
+GET http://localhost:8080/actuator/health
 ```
+
+
 
 Always returns HTTP 200, unless the service is not running at all.
 
 **HTTP RESPONSE BODY**
 
-| VALUE RETURNED | SERVICE STATE                                                                |
-|----------------|:-----------------------------------------------------------------------------|
-| UP             | The Rewards Service is up and configured to service requests                 |
-| DOWN           | The Rewards Service is down and not properly configured to service requests. |
+| VALUE RETURNED     | SERVICE STATE                                                                |
+|--------------------|:-----------------------------------------------------------------------------|
+| {"status": "UP"}   | The Rewards Service is up and configured to service requests                 |
+| {"status": "DOWN"} | The Rewards Service is down and not properly configured to service requests. |
 
 
 ### Transaction Set Rewards Calculation API
+
+Swagger UI is enabled at:
+
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
+** RESPONSE EXAMPLE **
+![Swagger UI Example](docs/swagger-example.png "Swagger UI Example")
+
+
+
+
 ```code
 POST http://localhost:8080/api/rewards/calculate_period
 ```
+
 
 Given the requirements, the Request Structure to be sent to the API as JSON Body Payload of an array of TransactionSummaryVO records
 
@@ -320,16 +348,24 @@ Validates the expected rewards points for Transactional Amounts
         | "H"           | *TODAY - 3 MONTH* | 2                  |
 
 
+# Validation Tool Configuration
+
+A Postman Project has been provided in the ./Postman folder with sample data to use.
+
+Import the project and change the endpoint to your deployment needs.
+
+**REQUEST EXAMPLE**
+![Postman Request Exmaple](docs/postman-request.png "Postman Request Example")
+
+
+** RESPONSE EXAMPLE **
+![Postman Response Example](docs/postman-response.png "Postman Response Example")
+
+
+
 # Code Rationalization
 
 While not provided in the challenge, I saw a need to ensure we can extend the calculation engine to support windowed 
 and recalculation of transaction sets for the windowed total of rewards points.  The Calculation is very strict for 
 whole monetary units, for point calculations.  Care was also taken for the window to be Start of the Day 3 months from 
 today, a sliding window that would have rewards expire do to the edge conditions of date comparisons.
-
-OpenAPI Annotations have been added to all objects exposed through the api, though I did not have time to enable the 
-swagger rendering services.
-
-A Postman Project has been provided in the ./Postman folder with sample data to use.
-
-JUnit Tests are provided for positive and negative testing to ensure accurate rewards calculation.

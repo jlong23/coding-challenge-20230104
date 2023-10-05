@@ -26,7 +26,7 @@ public class TransactionSummaryVO {
     @NotBlank
     private String transactionId;
 
-    @Schema(description = "Date Time the Transaction", example = "2023-10-01", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Date Time the Transaction", example = "2023-07-04T00:00:00.000+0000", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull
     private Date transactionDate;
 

@@ -3,7 +3,11 @@ package com.coding.challenge.domain;
 import com.coding.challenge.domain.model.RewardsPeriodVO;
 import com.coding.challenge.domain.model.RewardsVO;
 import com.coding.challenge.domain.model.TransactionSummaryVO;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
@@ -16,7 +20,15 @@ import java.util.stream.Collectors;
 @Component
 public class RewardsCalculator {
 
-    public static final int REWARDS_PERIOD_WINDOW = 3;
+    private final Logger logger = LoggerFactory.getLogger(RewardsCalculator.class);
+
+    @Value("${rewards.window.months}")
+    private int rewardsWindowMonths;
+
+    @PostConstruct
+    public void init() {
+        logger.info("** Rewards Window Months configuration = " + rewardsWindowMonths ) ;
+    }
 
     /**
      * Calculate The accumulated rewards for a given data set according to the Rules established in the ReadMe section
@@ -99,7 +111,7 @@ public class RewardsCalculator {
     private Date getStartingPeriod( Date endingPeriod ) {
 
         return Date.from( endingPeriod.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                .minusMonths( REWARDS_PERIOD_WINDOW )
+                .minusMonths( rewardsWindowMonths )
                 .atStartOfDay().atZone(ZoneId.systemDefault()).toInstant() );
     }
 

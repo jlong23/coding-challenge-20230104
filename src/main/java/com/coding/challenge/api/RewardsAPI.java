@@ -4,21 +4,16 @@ import com.coding.challenge.api.error.ServiceNotAvailableException;
 import com.coding.challenge.domain.RewardsCalculator;
 import com.coding.challenge.domain.model.RewardsVO;
 import com.coding.challenge.domain.model.TransactionSummaryVO;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,30 +34,6 @@ public class RewardsAPI {
     @Autowired
     private RewardsCalculator rewardsCalculator;
 
-    @GetMapping(
-            value = "/health-check",
-            produces = MediaType.TEXT_PLAIN_VALUE)
-    @Operation(
-            summary = "Health Check Endpoint",
-            description = "Will respond with 200 OK with the Simple Text Body of \"UP\" of if the API and associated " +
-                    "Services are ready to serve, otherwise \"DOWN\" or No reponse if the services are not ready",
-            tags = { "rewards", "health" })
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation")
-    })
-    ResponseEntity<String> healthCheck() {
-
-        ResponseEntity.BodyBuilder response = ResponseEntity.ok();
-        String state = "UP";
-
-        if( rewardsCalculator == null ) {
-            state = "DOWN";
-        }
-
-        return response.body( state );
-    }
-
-
     @PostMapping(
             value = "/calculate_period",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -70,7 +41,7 @@ public class RewardsAPI {
     @Operation(
             summary = "Calculate Rewards Points for Period",
             description = "Given a customer loyalty id and a collection of transaction activity, calculate the rewards points for that period",
-            tags = { "rewards", "period" })
+            tags = { "rewards" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation"),
             @ApiResponse(responseCode = "403", description = "Input Data Parsing Error"),
